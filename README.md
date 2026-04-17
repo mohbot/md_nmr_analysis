@@ -1,3 +1,17 @@
+#### **Overview
+
+These are set of analysis for a project that is intersection of Molecular Dynamics Simulation, NMR and Machine Learning
+
+Related studies:
+
+Discerning intersecting fusion-activation pathways in the Nipah virus using machine learning
+
+Machine learning approaches to evaluate correlation patterns in allosteric signaling: A case study of the PDZ2 domain
+
+Water Dynamics at Protein–Protein Interfaces: Molecular Dynamics Study of Virus–Host Receptor Complexes
+
+Effect of intrinsic and extrinsic factors on the simulated D-band length of type I collagen
+
 This MATLAB function, `bbTrajPos`, is designed to extract and reorganize the 3D coordinates of the four primary backbone atoms—**Nitrogen ($N$)**, **Alpha Carbon ($C_{\alpha}$)**, **Carbon ($C$)**, and **Oxygen ($O$)**—from a molecular dynamics trajectory. 
 
 The primary goal of this data extraction is to facilitate the calculation of protein backbone dihedral angles, specifically $\phi$ (phi) and $\psi$ (psi), which define the local conformation of the protein chain.
