@@ -55,6 +55,66 @@ By structuring the data this way, the output `bbTrajPos` allows for vector-based
 * **$\psi$ (Psi)** involves the coordinates of $N_i$, $C_{\alpha i}$, $C_i$, and $N_{i+1}$.
 
 > **Note on Assumptions**: This code assumes a specific ordering in the input files (where $C_{\alpha}$ always follows $N$, and $O$ always follows $C$). If the topology file uses a different naming convention or atom order, the indexing `a+1` may need to be adjusted.
+
+CentOfMassResBbSc.m
+This analysis performs a coarse-graining of Molecular Dynamics (MD) trajectory data by calculating the **Center of Mass (CoM)** for individual residues and their structural sub-components. 
+
+By reducing a cluster of atoms into a single representative point, you can more easily analyze global protein movements, domain rotations, and side-chain orientations without the "noise" of individual atomic vibrations.
+
+---
+
+## 🧬 Overview of Center of Mass Analysis
+
+The function `CentOfMassResBbSc` partitions a protein into three distinct trajectories:
+1.  **Total Residue (`CoMResTraj`):** The average position of all heavy atoms in an amino acid.
+2.  **Backbone (`CoMBbTraj`):** The average position of the $N, C\alpha, C,$ and $O$ atoms.
+3.  **Side-Chain (`CoMScTraj`):** The average position of all atoms belonging to the residue that are *not* part of the backbone.
+
+### 1. Mathematical Foundation
+The Center of Mass $\vec{R}$ is calculated as the mass-weighted average of the positions of all atoms in the group:
+
+$$\vec{R}_{CoM} = \frac{\sum_{i=1}^{n} m_i \vec{r}_i}{\sum_{i=1}^{n} m_i}$$
+
+Where:
+* $m_i$ is the atomic weight of atom $i$.
+* $\vec{r}_i$ is the coordinate vector $(x, y, z)$ of atom $i$ at a specific frame.
+
+### 2. Implementation Logic
+* **Atomic Weighting:** The script assigns standard masses for Nitrogen (**14.01**), Carbon (**12.01**), Oxygen (**16.00**), and Sulfur (**32.60**). Note that this specific implementation is designed for **heavy atoms** (it does not include Hydrogen weights).
+* **Sub-group Partitioning:** It uses a hardcoded membership check to identify backbone atoms (`N`, `CA`, `C`, `O`). Every other atom is automatically relegated to the side-chain group.
+* **Normalization:** For each frame, it sums the weighted coordinates and divides by the total mass of that specific group to ensure spatial accuracy.
+
+---
+
+## 📥 Input Requirements
+
+| Variable | Source | Description |
+| :--- | :--- | :--- |
+| `traj` | `PdbTrajRead` | The raw atomic coordinate trajectory. |
+| `atmGrpRes` | `PdbTrajRead` | A mapping of which atoms belong to which residue ID. |
+| `atmNam` | `PdbTrajRead` | A cell array of atom names used for mass assignment (e.g., 'CA', 'SG'). |
+
+---
+
+## 📤 Analysis Outputs
+
+The function produces three **3D matrices** of size `(nResidues x 3 x nFrames)`:
+
+* **`CoMResTraj`**: Ideal for tracking the overall "path" of a residue through space.
+* **`CoMBbTraj`**: Useful for analyzing the flexibility and folding of the protein's main chain.
+* **`CoMScTraj`**: A key metric for studying side-chain packing, rotameric changes, and ligand binding site dynamics.
+
+---
+
+## ⚠️ Important Considerations
+* **Coordinate Permutation:** The script internally swaps trajectory axes (`permute`) to optimize the speed of the summation loops.
+* **Heavy Atom Focus:** Because the `switch` statement only looks for `N`, `C`, `O`, and `S`, any Hydrogens in your file will be ignored in the calculation. This is standard practice in many NMR and X-ray-based analyses.
+* **Residue Indexing:** The code is robust enough to handle proteins where the first residue index is not `1`, as it calculates the range based on the minimum and maximum residue numbers found in `atmGrpRes`.
+
+> **Pro-Tip:** Comparing the distance between `CoMBbTraj` and `CoMScTraj` is an excellent way to quantify how "extended" or "compact" a side chain is during a simulation!
+
+
+
 This Python function, `traj_center_of_mass_res_bb_sc`, calculates the **Center of Mass (CoM)** trajectory for three distinct parts of each protein residue: the whole residue, the backbone, and the side chain.
 
 ---
